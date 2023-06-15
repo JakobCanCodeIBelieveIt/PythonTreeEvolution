@@ -93,6 +93,19 @@ class Plant:
 
         self.cells = new_cells
 
+        # Проверка, стала ли клетка семенем
+        for x, y, index in self.cells:
+            if index < len(self.genes):
+                current_gene = self.genes[index]
+                if 21 <= current_gene[4] <= 30:
+                    # Если клетка стала семенем и находится на земле, создаем новое растение
+                    if y >= WINDOW_HEIGHT - GROUND_HEIGHT - CELL_SIZE:
+                        new_plant_genome = {'genes': [[random.randint(1, 40) for _ in range(6)] for _ in range(20)],
+                                            'lifetime': random.randint(80, 90)}
+                        # Уменьшаем каждую компоненту цвета на 20, но не меньше 0
+                        new_plant_color = tuple(max(0, c - 20) for c in self.color)
+                        plant_objects.append(Plant(x, y, new_plant_genome, new_plant_color))
+
             # Создание растений
 plant_objects = []
 seeds = [
@@ -176,7 +189,7 @@ while True:
                 for x, y, _ in plant.cells:
                     # Проверка, чтобы растения не росли в панели вывода генома
                     if x < WINDOW_WIDTH:
-                        pygame.draw.rect(window, plant.color, (x, y, CELL_SIZE, CELL_SIZE))a
+                        pygame.draw.rect(window, plant.color, (x, y, CELL_SIZE, CELL_SIZE))
 
         # Отображение информации на экране
         cycles_text = font.render(f"Циклы: {cycle_counter}", True, (255, 255, 255))
