@@ -98,16 +98,13 @@ class Plant:
             if index < len(self.genes):
                 current_gene = self.genes[index]
                 if 21 <= current_gene[4] <= 30:
-                    # Если клетка стала семенем и находится на земле, создаем новое растение
+                    # Если клетка стала семенем и находится на земле
                     if y >= WINDOW_HEIGHT - GROUND_HEIGHT - CELL_SIZE:
-                        new_plant_genome = {'genes': [[random.randint(1, 40) for _ in range(6)] for _ in range(20)],
-                                            'lifetime': random.randint(80, 90)}
-                        # Уменьшаем каждую компоненту цвета на 20, но не меньше 0
-                        new_plant_color = tuple(max(0, c - 20) for c in self.color)
-                        plant_objects.append(Plant(x, y, new_plant_genome, new_plant_color))
+                        dead_plants.append((x, y, self.color))
 
             # Создание растений
 plant_objects = []
+dead_plants = []
 seeds = [
         {'x': WINDOW_WIDTH // 4, 'y': WINDOW_HEIGHT - GROUND_HEIGHT - CELL_SIZE,
         'genome': {'genes': [[random.randint(1, 40) for _ in range(6)] for _ in range(20)],
@@ -180,6 +177,13 @@ while True:
             if plant.age >= plant.lifetime:
                 # Удаляем растение из списка растений
                 plant_objects.remove(plant)
+                for x, y, color in dead_plants:
+                    new_plant_genome = {'genes': [[random.randint(1, 40) for _ in range(6)] for _ in range(20)],
+                                        'lifetime': random.randint(80, 90)}
+                    new_plant_color = tuple(max(0, c - 20) for c in color)
+                    plant_objects.append(Plant(x, y, new_plant_genome, new_plant_color))
+                dead_plants.clear()
+
                 # Удаляем клетки растения из множества занятых ячеек
                 for x, y, _ in plant.cells:
                     occupied_cells.discard((x, y))
