@@ -45,6 +45,7 @@ class Plant:
         self.color = color
         self.cells = [(x, y, 0)]  # добавим жизненный счетчик
         self.age = 0  # новый параметр "возраст"
+        self.changed_cells = []
 
     # Рост растения
     # Рост растения
@@ -92,7 +93,8 @@ class Plant:
             new_cells.append((x, y, index))
 
         self.cells = new_cells
-
+        self.changed_cells = new_cells
+        
         # Проверка, стала ли клетка семенем
         for x, y, index in self.cells:
             if index < len(self.genes):
@@ -175,14 +177,12 @@ while True:
 
             # Проверяем, достиг ли "возраст" растения времени жизни
             if plant.age >= plant.lifetime:
-                # Удаляем растение из списка растений
-                plant_objects.remove(plant)
-                for x, y, color in dead_plants:
-                    new_plant_genome = {'genes': [[random.randint(1, 40) for _ in range(6)] for _ in range(20)],
-                                        'lifetime': random.randint(80, 90)}
-                    new_plant_color = tuple(max(0, c - 20) for c in color)
-                    plant_objects.append(Plant(x, y, new_plant_genome, new_plant_color))
-                dead_plants.clear()
+                # Удаляем клетки растения из множества занятых ячеек
+                for x, y, index in plant.cells:
+                    current_gene = plant.genes[index] if index < len(plant.genes) else None
+                    # Если клетка не является семенем, удаляем ее
+                    if not (current_gene and 21 <= current_gene[4] <= 30):
+                        occupied_cells.discard((x, y))
 
                 # Удаляем клетки растения из множества занятых ячеек
                 for x, y, _ in plant.cells:
