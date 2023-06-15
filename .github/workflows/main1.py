@@ -37,6 +37,18 @@ occupied_cells = set()
 selected_plant = None
 
 
+class GrowingSeed:
+    def __init__(self, x, y, color, genome):
+        self.x = x
+        self.y = y
+        # Устанавливаем цвет семян на более темный оттенок
+        self.color = (max(0, color[0] - 50), max(0, color[1] - 50), max(0, color[2] - 50))
+        self.genome = genome
+
+    def get_changed_cells(self):
+        return [(self.x, self.y, self.color)]
+
+
 # Класс растения
 class Plant:
     def __init__(self, x, y, genome, color):
@@ -94,19 +106,18 @@ class Plant:
 
         self.cells = new_cells
         self.changed_cells = new_cells
-        
+
         # Проверка, стала ли клетка семенем
         for x, y, index in self.cells:
             if index < len(self.genes):
                 current_gene = self.genes[index]
                 if 21 <= current_gene[4] <= 30:
                     # Если клетка стала семенем и находится на земле
-                    if y >= WINDOW_HEIGHT - GROUND_HEIGHT - CELL_SIZE:
-                        dead_plants.append((x, y, self.color))
+                    growing_seeds.append(GrowingSeed(x, y, self.color, self.genes))
 
             # Создание растений
 plant_objects = []
-dead_plants = []
+growing_seeds = []
 seeds = [
         {'x': WINDOW_WIDTH // 4, 'y': WINDOW_HEIGHT - GROUND_HEIGHT - CELL_SIZE,
         'genome': {'genes': [[random.randint(1, 40) for _ in range(6)] for _ in range(20)],
@@ -194,6 +205,10 @@ while True:
                     # Проверка, чтобы растения не росли в панели вывода генома
                     if x < WINDOW_WIDTH:
                         pygame.draw.rect(window, plant.color, (x, y, CELL_SIZE, CELL_SIZE))
+        for seed in growing_seeds:
+            for x, y, color in seed.get_changed_cells():
+                if x < WINDOW_WIDTH:
+                    pygame.draw.rect(window, color, (x, y, CELL_SIZE, CELL_SIZE))
 
         # Отображение информации на экране
         cycles_text = font.render(f"Циклы: {cycle_counter}", True, (255, 255, 255))
