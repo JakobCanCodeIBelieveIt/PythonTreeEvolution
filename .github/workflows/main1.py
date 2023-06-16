@@ -130,7 +130,9 @@ seeds = [
 ]
 
 for seed in seeds:
-    plant_objects.append(Plant(seed['x'], seed['y'], seed['genome'], seed['color']))
+    plant = Plant(seed['x'], seed['y'], seed['genome'], seed['color'])
+    plant_objects.append(plant)
+    occupied_cells.add((seed['x'], seed['y']))
 
             # Главный цикл игры
 while True:
